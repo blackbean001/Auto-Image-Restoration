@@ -7,8 +7,10 @@ Pipeline:
 2. Run "sh synthesize.sh" to generate synthesized low-quality data.
 3. Run "python -m pipeline.infer" to generate restoration results and saved in output. One can first use evaluate_degradation_by="depictqa" to generate initial outputs. After saving enough knowledge in Step 4, one can use evaluate_degradation_by="clip_retrieval" for efficienty.
 4. Refer to AgenticIR/retrieval_database/CLIP4CIR/run_pipeline.sh to train the model for image quality classification and insert history knowledge to PostgreSQL
+
+
 ![image](https://github.com/blackbean001/Auto-Image-Restoration/blob/main/pngs/pipeline.png)
 
-Results:
+
 ![image](https://github.com/blackbean001/Auto-Image-Restoration/blob/main/pngs/result1.png)
 ![image](https://github.com/blackbean001/Auto-Image-Restoration/blob/main/pngs/result2.png)
