@@ -1,0 +1,24 @@
+{
+  "dark+noise": {
+    "denoising+brightening": {
+      "total": 180,
+      "dark": 54,
+      "noise": 58,
+      "fail rate": {
+        "dark": 0.3,
+        "noise": 0.32222222222222224,
+        "total": 0.3111111111111111
+      }
+    },
+    "brightening+denoising": {
+      "total": 180,
+      "dark": 77,
+      "noise": 60,
+      "fail rate": {
+        "dark": 0.42777777777777776,
+        "noise": 0.3333333333333333,
+        "total": 0.38055555555555554
+      }
+    }
+  }
+}

@@ -1,0 +1,94 @@
+low resolution
+dark
+noise
+jpeg compression artifact
+haze
+motion blur
+defocus blur
+rain
+
+low resolution + dark
+low resolution + noise
+low resolution + jpeg compression artifact
+#low resolution + haze
+low resolution + motion blur
+low resolution + defocus blur
+low resolution + rain
+dark + noise
+dark + jpeg compression artifact
+dark + haze
+dark + motion blur
+dark + defocus blur
+dark + rain
+noise + jpeg compression artifact
+noise + haze
+noise + motion blur
+noise + defocus blur
+noise + rain
+jpeg compression artifact + haze
+jpeg compression artifact + motion blur
+jpeg compression artifact + defocus blur
+jpeg compression artifact + rain
+haze + motion blur
+haze + defocus blur
+haze + rain
+motion blur + defocus blur
+motion blur + rain
+defocus blur + rain
+
+low resolution + dark + noise
+low resolution + dark + jpeg compression artifact
+#low resolution + dark + haze
+low resolution + dark + motion blur
+low resolution + dark + defocus blur
+low resolution + dark + rain
+low resolution + noise + jpeg compression artifact
+#low resolution + noise + haze
+low resolution + noise + motion blur
+low resolution + noise + defocus blur
+low resolution + noise + rain
+#low resolution + jpeg compression artifact + haze
+low resolution + jpeg compression artifact + motion blur
+low resolution + jpeg compression artifact + defocus blur
+low resolution + jpeg compression artifact + rain
+#low resolution + haze + motion blur
+#low resolution + haze + defocus blur
+#low resolution + haze + rain
+low resolution + motion blur + defocus blur
+low resolution + motion blur + rain
+low resolution + defocus blur + rain
+dark + noise + jpeg compression artifact
+dark + noise + haze
+dark + noise + motion blur
+dark + noise + defocus blur
+dark + noise + rain
+dark + jpeg compression artifact + haze
+dark + jpeg compression artifact + motion blur
+dark + jpeg compression artifact + defocus blur
+dark + jpeg compression artifact + rain
+dark + haze + motion blur
+dark + haze + defocus blur
+dark + haze + rain
+dark + motion blur + defocus blur
+dark + motion blur + rain
+dark + defocus blur + rain
+noise + jpeg compression artifact + haze
+noise + jpeg compression artifact + motion blur
+noise + jpeg compression artifact + defocus blur
+noise + jpeg compression artifact + rain
+noise + haze + motion blur
+noise + haze + defocus blur
+noise + haze + rain
+noise + motion blur + defocus blur
+noise + motion blur + rain
+noise + defocus blur + rain
+jpeg compression artifact + haze + motion blur
+jpeg compression artifact + haze + defocus blur
+jpeg compression artifact + haze + rain
+jpeg compression artifact + motion blur + defocus blur
+jpeg compression artifact + motion blur + rain
+jpeg compression artifact + defocus blur + rain
+haze + motion blur + defocus blur
+haze + motion blur + rain
+haze + defocus blur + rain
+motion blur + defocus blur + rain

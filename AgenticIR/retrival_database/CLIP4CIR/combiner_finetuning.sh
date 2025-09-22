@@ -1,0 +1,18 @@
+CUDA_VISIBLE_DEVICE=0 python src/combiner_train.py \
+   --dataset 'ImgRes' \
+   --api-key '038UtfPXqcfLarzK3KlAKxMuN' \
+   --workspace 'clip4cir-imgres' \
+   --experiment-name 'first_combiner_demo' \
+   --projection-dim 2560 \
+   --hidden-dim 5120 \
+   --num-epochs 50 \
+   --clip-model-name RN50x4 \
+   --clip-model-path './models/clip_finetuned_on_imgres_RN50x4_2025-09-05_10:48:31/saved_models/tuned_clip_arithmetic.pt' \
+   --combiner-lr 2e-5 \
+   --batch-size 1280 \
+   --clip-bs 96 \
+   --transform targetpad \
+   --target-ratio 1.25 \
+   --save-training \
+   --save-best \
+   --validation-frequency 1

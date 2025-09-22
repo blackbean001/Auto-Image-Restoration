@@ -1,0 +1,1125 @@
+2025-08-26 02:41:57,706 INFO: 
+                ____                _       _____  ____
+               / __ ) ____ _ _____ (_)_____/ ___/ / __ \
+              / __  |/ __ `// ___// // ___/\__ \ / /_/ /
+             / /_/ // /_/ /(__  )/ // /__ ___/ // _, _/
+            /_____/ \__,_//____//_/ \___//____//_/ |_|
+     ______                   __   __                 __      __
+    / ____/____   ____   ____/ /  / /   __  __ _____ / /__   / /
+   / / __ / __ \ / __ \ / __  /  / /   / / / // ___// //_/  / /
+  / /_/ // /_/ // /_/ // /_/ /  / /___/ /_/ // /__ / /<    /_/
+  \____/ \____/ \____/ \____/  /_____/\____/ \___//_/|_|  (_)
+    
+Version Information: 
+	BasicSR: 1.4.2
+	PyTorch: 2.2.0+cu121
+	TorchVision: 0.16.2+cu121
+2025-08-26 02:41:57,706 INFO: 
+  datasets:[
+    test_1:[
+      dataroot_lq: /home/jason/AgenticIR/exhaustive_sequences/d2/dark+noise/051/tree/subtask-brightening/tool-histogram_equalization/0-img
+      in_ch: 3
+      io_backend:[
+        type: disk
+      ]
+      name: test
+      sigma_test: 50
+      type: SingleImageDataset
+      phase: test
+      scale: 1
+    ]
+  ]
+  dist_params:[
+    backend: nccl
+    port: 29500
+  ]
+  manual_seed: 123
+  model_type: XRestormerModel
+  name: 002_xrestormer_denoise
+  network_g:[
+    LayerNorm_type: WithBias
+    bias: False
+    channel_heads: [1, 2, 4, 8]
+    dim: 48
+    dual_pixel_task: False
+    ffn_expansion_factor: 2.66
+    inp_channels: 3
+    num_blocks: [2, 4, 4, 4]
+    num_refinement_blocks: 4
+    out_channels: 3
+    overlap_ratio: [0.5, 0.5, 0.5, 0.5]
+    scale: 1
+    spatial_dim_head: 16
+    spatial_heads: [1, 2, 4, 8]
+    type: XRestormer
+    window_size: 8
+  ]
+  num_gpu: 8
+  padding_size: 64
+  path:[
+    pretrain_network_g: X-Restormer/experiments/pretrained/denoise_300k.pth
+    results: /home/jason/AgenticIR/exhaustive_sequences/d2/dark+noise/051/tree/subtask-brightening/tool-histogram_equalization/subtask-denoising/tool-xrestormer/0-img
+    resume_state: None
+    strict_load_g: True
+    results_root: /home/jason/AgenticIR/exhaustive_sequences/d2/dark+noise/051/tree/subtask-brightening/tool-histogram_equalization/subtask-denoising/tool-xrestormer/0-img/002_xrestormer_denoise
+    log: /home/jason/AgenticIR/exhaustive_sequences/d2/dark+noise/051/tree/subtask-brightening/tool-histogram_equalization/subtask-denoising/tool-xrestormer/0-img/002_xrestormer_denoise
+    visualization: /home/jason/AgenticIR/exhaustive_sequences/d2/dark+noise/051/tree/subtask-brightening/tool-histogram_equalization/subtask-denoising/tool-xrestormer/0-img/002_xrestormer_denoise/visualization
+  ]
+  scale: 1
+  val:[
+    save_img: True
+    suffix: None
+  ]
+  dist: False
+  rank: 0
+  world_size: 1
+  auto_resume: False
+  is_train: False
+
+2025-08-26 02:41:57,707 INFO: Dataset [SingleImageDataset] - test is built.
+2025-08-26 02:41:57,707 INFO: Number of test images in test: 1
+2025-08-26 02:41:58,122 INFO: Network [XRestormer] is created.
+2025-08-26 02:41:58,376 INFO: Network: DataParallel - XRestormer, with parameters: 26,041,208
+2025-08-26 02:41:58,376 INFO: XRestormer(
+  (patch_embed): OverlapPatchEmbed(
+    (proj): Conv2d(3, 48, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+  )
+  (encoder_level1): Sequential(
+    (0): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(48, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(16, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(48, 144, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(144, 144, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=144, bias=False)
+        (project_out): Conv2d(48, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(48, 254, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(254, 254, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=254, bias=False)
+        (project_out): Conv2d(127, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(48, 254, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(254, 254, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=254, bias=False)
+        (project_out): Conv2d(127, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (1): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(48, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(16, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(48, 144, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(144, 144, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=144, bias=False)
+        (project_out): Conv2d(48, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(48, 254, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(254, 254, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=254, bias=False)
+        (project_out): Conv2d(127, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(48, 254, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(254, 254, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=254, bias=False)
+        (project_out): Conv2d(127, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+  )
+  (down1_2): Downsample(
+    (body): Sequential(
+      (0): Conv2d(48, 24, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (1): PixelUnshuffle(downscale_factor=2)
+    )
+  )
+  (encoder_level2): Sequential(
+    (0): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(32, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(96, 288, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288, bias=False)
+        (project_out): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (1): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(32, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(96, 288, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288, bias=False)
+        (project_out): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (2): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(32, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(96, 288, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288, bias=False)
+        (project_out): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (3): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(32, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(96, 288, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288, bias=False)
+        (project_out): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+  )
+  (down2_3): Downsample(
+    (body): Sequential(
+      (0): Conv2d(96, 48, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (1): PixelUnshuffle(downscale_factor=2)
+    )
+  )
+  (encoder_level3): Sequential(
+    (0): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(64, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(192, 576, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(576, 576, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=576, bias=False)
+        (project_out): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (1): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(64, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(192, 576, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(576, 576, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=576, bias=False)
+        (project_out): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (2): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(64, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(192, 576, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(576, 576, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=576, bias=False)
+        (project_out): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (3): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(64, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(192, 576, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(576, 576, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=576, bias=False)
+        (project_out): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+  )
+  (down3_4): Downsample(
+    (body): Sequential(
+      (0): Conv2d(192, 96, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (1): PixelUnshuffle(downscale_factor=2)
+    )
+  )
+  (latent): Sequential(
+    (0): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(384, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(128, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(384, 1152, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(1152, 1152, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1152, bias=False)
+        (project_out): Conv2d(384, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(384, 2042, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(2042, 2042, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=2042, bias=False)
+        (project_out): Conv2d(1021, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(384, 2042, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(2042, 2042, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=2042, bias=False)
+        (project_out): Conv2d(1021, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (1): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(384, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(128, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(384, 1152, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(1152, 1152, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1152, bias=False)
+        (project_out): Conv2d(384, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(384, 2042, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(2042, 2042, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=2042, bias=False)
+        (project_out): Conv2d(1021, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(384, 2042, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(2042, 2042, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=2042, bias=False)
+        (project_out): Conv2d(1021, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (2): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(384, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(128, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(384, 1152, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(1152, 1152, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1152, bias=False)
+        (project_out): Conv2d(384, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(384, 2042, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(2042, 2042, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=2042, bias=False)
+        (project_out): Conv2d(1021, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(384, 2042, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(2042, 2042, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=2042, bias=False)
+        (project_out): Conv2d(1021, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (3): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(384, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(128, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(384, 1152, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(1152, 1152, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1152, bias=False)
+        (project_out): Conv2d(384, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(384, 2042, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(2042, 2042, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=2042, bias=False)
+        (project_out): Conv2d(1021, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(384, 2042, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(2042, 2042, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=2042, bias=False)
+        (project_out): Conv2d(1021, 384, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+  )
+  (up4_3): Upsample(
+    (body): Sequential(
+      (0): Conv2d(384, 768, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (1): PixelShuffle(upscale_factor=2)
+    )
+  )
+  (reduce_chan_level3): Conv2d(384, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+  (decoder_level3): Sequential(
+    (0): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(64, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(192, 576, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(576, 576, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=576, bias=False)
+        (project_out): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (1): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(64, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(192, 576, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(576, 576, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=576, bias=False)
+        (project_out): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (2): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(64, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(192, 576, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(576, 576, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=576, bias=False)
+        (project_out): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (3): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(64, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(192, 576, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(576, 576, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=576, bias=False)
+        (project_out): Conv2d(192, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(192, 1020, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(1020, 1020, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=1020, bias=False)
+        (project_out): Conv2d(510, 192, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+  )
+  (up3_2): Upsample(
+    (body): Sequential(
+      (0): Conv2d(192, 384, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (1): PixelShuffle(upscale_factor=2)
+    )
+  )
+  (reduce_chan_level2): Conv2d(192, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+  (decoder_level2): Sequential(
+    (0): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(32, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(96, 288, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288, bias=False)
+        (project_out): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (1): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(32, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(96, 288, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288, bias=False)
+        (project_out): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (2): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(32, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(96, 288, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288, bias=False)
+        (project_out): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (3): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(32, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(96, 288, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288, bias=False)
+        (project_out): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+  )
+  (up2_1): Upsample(
+    (body): Sequential(
+      (0): Conv2d(96, 192, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+      (1): PixelShuffle(upscale_factor=2)
+    )
+  )
+  (decoder_level1): Sequential(
+    (0): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(96, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(16, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(96, 288, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288, bias=False)
+        (project_out): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (1): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(96, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(16, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(96, 288, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288, bias=False)
+        (project_out): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+  )
+  (refinement): Sequential(
+    (0): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(96, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(16, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(96, 288, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288, bias=False)
+        (project_out): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (1): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(96, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(16, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(96, 288, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288, bias=False)
+        (project_out): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (2): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(96, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(16, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(96, 288, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288, bias=False)
+        (project_out): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+    (3): TransformerBlock(
+      (spatial_attn): OCAB(
+        (unfold): Unfold(kernel_size=(12, 12), dilation=1, padding=2, stride=8)
+        (qkv): Conv2d(96, 48, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (project_out): Conv2d(16, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (rel_pos_emb): RelPosEmb()
+      )
+      (channel_attn): ChannelAttention(
+        (qkv): Conv2d(96, 288, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (qkv_dwconv): Conv2d(288, 288, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=288, bias=False)
+        (project_out): Conv2d(96, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (norm1): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm2): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm3): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (norm4): LayerNorm(
+        (body): WithBias_LayerNorm()
+      )
+      (channel_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+      (spatial_ffn): FeedForward(
+        (project_in): Conv2d(96, 510, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (dwconv): Conv2d(510, 510, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=510, bias=False)
+        (project_out): Conv2d(255, 96, kernel_size=(1, 1), stride=(1, 1), bias=False)
+      )
+    )
+  )
+  (output): Conv2d(96, 3, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+)
+2025-08-26 02:41:58,432 INFO: Loading XRestormer model from X-Restormer/experiments/pretrained/denoise_300k.pth, with param key: [params].
+2025-08-26 02:41:58,516 INFO: Model [XRestormerModel] is created.
+2025-08-26 02:41:58,516 INFO: Testing test...

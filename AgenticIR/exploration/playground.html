@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Playground</title>
+
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+
+  <style>
+    summary {
+      font-size: 30px
+    }
+
+    details {
+      margin-left: 30px
+    }
+  </style>
+</head>
+
+<body>
+  <button onclick="next()">Next Image</button>
+  <br>
+  <textarea cols="100" rows="5" style="font-size:30px" id="commentInput"
+    placeholder="Enter the comment here...">{{ comment }}</textarea>
+  <br>
+  <button onclick="saveComment()">Save Comment</button>
+
+  {{ dom | safe}}
+
+  <dialog id="exeDialog">
+    <form method="dialog">
+      <p>
+        <label>Subtask to execute
+          <select>
+            <option value="null">Choose…</option>
+            <option>super-resolution</option>
+            <option>denoising</option>
+            <option>dehazing</option>
+            <option>defocus deblurring</option>
+            <option>motion deblurring</option>
+            <option>deraining</option>
+            <!-- <option>raindrop removal</option> -->
+            <option>brightening</option>
+            <option>jpeg compression artifact removal</option>
+            <!-- <option>retouching</option> -->
+          </select>
+        </label>
+      </p>
+      <div>
+        <button id="cancelBtn" value="cancel">Cancel</button>
+        <button id="exeConfirmBtn" value="null">Execute</button>
+        <button id="markBtn" value="null">Mark as best</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const exeDialog = document.getElementById("exeDialog");
+    const selectEl = exeDialog.querySelector("select");
+    const cancelBtn = exeDialog.querySelector("#cancelBtn");
+    const exeConfirmBtn = exeDialog.querySelector("#exeConfirmBtn");
+    var selectedImgPath = null;
+
+    function execute(imgPath) {
+      if (typeof exeDialog.showModal === "function") {
+        exeDialog.showModal();
+        selectedImgPath = imgPath;
+      } else {
+        alert("Sorry, the <dialog> API is not supported by this browser.");
+      }
+    }
+    cancelBtn.addEventListener('click', function () {
+      selectEl.value = 'null';
+    });
+    exeConfirmBtn.addEventListener('click', function () {
+      if (selectEl.value != 'null') {
+        alert('Executing ' + selectEl.value + ' on ' + selectedImgPath + '...');
+        $.get('/execute', {
+          img_path: selectedImgPath,
+          subtask: selectEl.value
+        }, function (data) {
+          alert('Done! The page will be refreshed.')
+          window.location.reload();
+        });
+        selectEl.value = 'null';
+      }
+    });
+
+    function next() {
+      $.get('/next', function (data) {
+        window.location.reload();
+      });
+    }
+
+    function saveComment() {
+      var comment = document.getElementById("commentInput").value;
+      localStorage.setItem("comment", comment);
+      $.get('/set_comment', {
+        comment: comment
+      }, function (data) {
+        window.location.reload();
+      });
+    }
+
+    // // display comment
+    // window.onload = function() {
+    //   const savedText = localStorage.getItem("comment");
+    //   if (savedText != null) {
+    //     document.getElementById("commentInput").value = savedText;
+    //   }
+    // }
+    const markBtn = exeDialog.querySelector("#markBtn");
+    markBtn.addEventListener('click', function () {
+      $.get('/mark_as_best', {
+        img_path: selectedImgPath
+      });
+    });
+
+  </script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,71 @@
+datasets:
+  test_1:
+    dataroot_lq: !!python/object/apply:pathlib.PosixPath
+    - /
+    - home
+    - jason
+    - AgenticIR
+    - exhaustive_sequences
+    - d2
+    - dark+noise
+    - '051'
+    - tree
+    - subtask-brightening
+    - tool-histogram_equalization
+    - 0-img
+    in_ch: 3
+    io_backend:
+      type: disk
+    name: test
+    sigma_test: 50
+    type: SingleImageDataset
+dist_params:
+  backend: nccl
+  port: 29500
+manual_seed: 123
+model_type: XRestormerModel
+name: 002_xrestormer_denoise
+network_g:
+  LayerNorm_type: WithBias
+  bias: false
+  channel_heads:
+  - 1
+  - 2
+  - 4
+  - 8
+  dim: 48
+  dual_pixel_task: false
+  ffn_expansion_factor: 2.66
+  inp_channels: 3
+  num_blocks:
+  - 2
+  - 4
+  - 4
+  - 4
+  num_refinement_blocks: 4
+  out_channels: 3
+  overlap_ratio:
+  - 0.5
+  - 0.5
+  - 0.5
+  - 0.5
+  scale: 1
+  spatial_dim_head: 16
+  spatial_heads:
+  - 1
+  - 2
+  - 4
+  - 8
+  type: XRestormer
+  window_size: 8
+num_gpu: 8
+padding_size: 64
+path:
+  pretrain_network_g: X-Restormer/experiments/pretrained/denoise_300k.pth
+  results: /home/jason/AgenticIR/exhaustive_sequences/d2/dark+noise/051/tree/subtask-brightening/tool-histogram_equalization/subtask-denoising/tool-xrestormer/0-img
+  resume_state: null
+  strict_load_g: true
+scale: 1
+val:
+  save_img: true
+  suffix: null

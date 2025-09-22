@@ -1,0 +1,1 @@
+../../CLIP4Cir/src/insert_emb_to_postgresql.py
