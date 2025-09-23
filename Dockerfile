@@ -13,9 +13,12 @@ RUN apt-get update  \
   && apt-get install -y postgresql postgresql-client  \
   && /etc/init.d/postgresql start  \
   && su postgres && createdb $db_name && exit  \
-  && pip install pgvector  \
+  && pip install pgvector  && apt install postgresql-server-dev-14  \
+  && git clone --branch v0.8.1 https://github.com/pgvector/pgvector.git && cd pgvector && make && make install && cd .. \
   && apt-get install libpq-dev && pip install psycopg2  \
-  
+  && sed -i '90s/.*/local   all             postgres                                peer/' /etc/postgresql/14/main/pg_hba.conf \
+  && apt-get install systemd  && service postgresql restart
+
 # build environment
 RUN pip install numpy==1.24.1 torch==2.1.0 opencv-python==4.8.0.76  \
   && conda create -y -n clip4cir -y python=3.8  \
