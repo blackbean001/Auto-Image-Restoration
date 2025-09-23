@@ -398,7 +398,11 @@ class IRAgent:
         results = self.retrieve_from_database(embedding, 1) # for now only support top-1
         
         _id, name, res_seq, sim = results[0] # res_seq: motion deblurring_xrestormer/super-resolution_diffbir/deraining_xrestormer
-        
+        if sim <= 0.9:
+            shutil.rmtree(self.work_dir)
+            print("No similar image in the knowledge base, please set evaluate_degradation_by='depictqa'")
+            exit()
+
         evaluation = [(item.split("_")[0], 'very high', item.split("_")[1]) for item in res_seq.split("/")]
 
         return evaluation
