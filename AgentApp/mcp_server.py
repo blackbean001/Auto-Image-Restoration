@@ -9,6 +9,17 @@ from mcp import types
 # Reuse existing modules from the Flask app
 from agentic_api import init_invoke_dict, get_compiled_graph
 
+import sys
+import logging
+
+logging.basicConfig(
+    stream=sys.stderr,
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+
+print = lambda *args, **kwargs: __builtins__['print'](*args, **kwargs, file=sys.stderr)
+
 server = Server("image-restoration")
 
 @server.list_tools()
@@ -124,4 +135,18 @@ def _load_image_content(image_path: str) -> types.ImageContent:
 
 
 if __name__ == "__main__":
-    asyncio.run(stdio_server(server))
+    from mcp.server.stdio import stdio_server
+
+    async def run_server():
+        async with stdio_server() as (read_stream, write_stream):
+            await server.run(
+                read_stream,
+                write_stream,
+                server.create_initialization_options()
+            )
+
+    asyncio.run(run_server())
+
+
+
+
