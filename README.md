@@ -1,27 +1,49 @@
-**Intro**    
-1. This repo contains an agent system for images restoration with mixed degradation.
-2. The repo is inspired by AgenticIR (https://github.com/Kaiwen-Zhu/AgenticIR) with following improvements:
-   (1) We rebuilt the end-to-end pipeline with LangGraph for better states management and efficiency.
-   (2) We replaced offline model inference with service-based inference to be suitable for production-level deployment.
-   (3) We use a ServiceManager to manage the model services. Least used service will be released when target GPU utilization is beyond some threshold.
-   (4) We try to accelerate the restoration process by using CLIP4CIR (https://github.com/ABaldrati/CLIP4Cir/tree/master) to find similar images in the database.
+🚀 Agentic Image Restoration System
+This repository implements an advanced Agentic System designed for restoring images with mixed/complex degradations. Building upon the foundations of AgenticIR, this project introduces architectural improvements aimed at production-level scalability, stateful workflow management, and efficient resource allocation.
 
-**AgenticIR**:   
-1. Run "docker build ." to create environment. One can use "conda env list" to check env for different models.
-2. Run "sh synthesize.sh" to generate synthesized low-quality data (to train CLIP4CIR).
-3. Run "python -m pipeline.infer" to generate restoration results and saved in output. One can first use evaluate_degradation_by="depictqa" to generate initial outputs. After saving enough knowledge in Step 4, one can use evaluate_degradation_by="clip_retrieval" for efficienty.
-4. Refer to AgenticIR/retrieval_database/CLIP4CIR/run_pipeline.sh to train the model for image quality classification and insert history knowledge to PostgreSQL.
+✨ Key Improvements over AgenticIR
+LangGraph Orchestration: Re-engineered the end-to-end pipeline using LangGraph. This provides superior state management, granular control over tool-calling loops, and higher execution efficiency.
 
-**AgentApp**:   
-1. Use LangGraph to reproduce the functionality of AgenticIR, making it easier to manage the pipeline. To add new tools, one can easily define new nodes and link edges to existing nodes in the graph. Run 'run.sh' to test inference.  
-3. Service enabled by FastAPI, run 'test_api.sh' to test.
+Production-Ready Inference: Transitioned from traditional offline model scripts to a Service-Oriented Architecture (SOA) based on FastAPI, enabling seamless integration into cloud environments.
 
-**To-dos**:   
-1. Use a service manager to kill least-used services when overloaded. (done).
-2. Adaptively select GPU rank when launching new service for better GPU utilization.
-3. Support for Kubernetes deployment.
-4. Use GPU pooling (like TensorFusion <https://github.com/NexusGPU/tensor-fusion>), MPS or time-slicing to improve GPU utilization rate. 
-5. Accelerate inference speed for individual models.
+Dynamic Service Management: Integrated a custom ServiceManager that monitors GPU health. To maintain stability, it automatically offloads the Least Recently Used (LRU) model services when GPU utilization exceeds defined thresholds.
 
+Accelerated Retrieval: Leverages CLIP4CIR to perform content-based image retrieval. By finding similar restoration "recipes" from a knowledge base, the system bypasses redundant reasoning steps, significantly speeding up the restoration process.
 
-![image](https://github.com/blackbean001/Auto-Image-Restoration/blob/main/pngs/pipeline.png)
+🛠️ Module Overview
+1. AgenticIR (Core Logic & Training)
+Environment: Build the core environment via docker build .. Individual model dependencies can be verified via conda env list.
+
+Data Synthesis: Run sh synthesize.sh to generate low-quality datasets required for training the CLIP-based quality classifier.
+
+Inference: Execute python -m pipeline.infer.
+
+Initial Phase: Set evaluate_degradation_by="depictqa" for zero-shot quality assessment.
+
+Knowledge Phase: Once the database is populated, switch to evaluate_degradation_by="clip_retrieval" for high-speed inference.
+
+Knowledge Base: Refer to AgenticIR/retrieval_database/CLIP4CIR/run_pipeline.sh to train the classifier and upsert restoration history into PostgreSQL.
+
+2. AgentApp (LangGraph & API)
+Graph Pipeline: Reproduces AgenticIR functionality within a DAG (Directed Acyclic Graph). Adding new restoration tools is as simple as defining a new node and linking it to the graph.
+
+Test via: sh run.sh
+
+Service Layer: All models are wrapped in FastAPI wrappers.
+
+Test via: sh test_api.sh
+
+📝 Roadmap & To-dos
+[x] Service Manager: Automatic termination of idle/LRU services under high load.
+
+[ ] Adaptive Scheduling: Smart GPU rank selection when launching new model services to balance vRAM.
+
+[ ] Cloud Native: Support for full Kubernetes (K8s) orchestration and Helm charts.
+
+[ ] GPU Optimization: Integration of GPU Pooling (e.g., TensorFusion), NVIDIA MPS, or Time-Slicing to maximize multi-tenant throughput.
+
+[ ] Model Acceleration: Kernel-level optimization (TensorRT/ONNX) for individual restoration backbones.
+
+[ ] MCP Implementation: Enable interoperability with other MCP-compatible clients (like Claude Desktop or IDEs) to trigger restoration workflows.
+
+[ ] RAG Implementation to enhance sequence planning capability.
