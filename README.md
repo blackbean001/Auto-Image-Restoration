@@ -1,49 +1,89 @@
-🚀 Agentic Image Restoration System
-This repository implements an advanced Agentic System designed for restoring images with mixed/complex degradations. Building upon the foundations of AgenticIR, this project introduces architectural improvements aimed at production-level scalability, stateful workflow management, and efficient resource allocation.
+# 🚀 Agentic Image Restoration System
 
-✨ Key Improvements over AgenticIR
-LangGraph Orchestration: Re-engineered the end-to-end pipeline using LangGraph. This provides superior state management, granular control over tool-calling loops, and higher execution efficiency.
+Made with ❤️ for production-ready image restoration, still a beta version. 
+Features available, still under active development.
 
-Production-Ready Inference: Transitioned from traditional offline model scripts to a Service-Oriented Architecture (SOA) based on FastAPI, enabling seamless integration into cloud environments.
+![Status](https://img.shields.io/badge/status-beta-orange) ![Python](https://img.shields.io/badge/python-3.10-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
-Dynamic Service Management: Integrated a custom ServiceManager that monitors GPU health. To maintain stability, it automatically offloads the Least Recently Used (LRU) model services when GPU utilization exceeds defined thresholds.
+Advanced **Agentic System** for restoring images with mixed/complex degradations.
+Building upon **AgenticIR**, this project brings **production-level scalability**, **stateful workflow management**, and **efficient resource allocation**.
 
-Accelerated Retrieval: Leverages CLIP4CIR to perform content-based image retrieval. By finding similar restoration "recipes" from a knowledge base, the system bypasses redundant reasoning steps, significantly speeding up the restoration process.
+---
 
-🛠️ Module Overview
-1. AgenticIR (Core Logic & Training)
-Environment: Build the core environment via docker build .. Individual model dependencies can be verified via conda env list.
+## ✨ Key Features
 
-Data Synthesis: Run sh synthesize.sh to generate low-quality datasets required for training the CLIP-based quality classifier.
+* **LangGraph Orchestration**: End-to-end DAG pipeline with granular tool-calling control.
+* **Production-Ready Inference**: FastAPI-based Service-Oriented Architecture for cloud deployment.
+* **Dynamic Service Management**: Monitors GPU health and offloads LRU services automatically.
+* **Accelerated Retrieval**: Uses **CLIP4CIR** for content-based image retrieval to speed up inference.
 
-Inference: Execute python -m pipeline.infer.
+---
 
-Initial Phase: Set evaluate_degradation_by="depictqa" for zero-shot quality assessment.
+## 🏁 Quick Start
 
-Knowledge Phase: Once the database is populated, switch to evaluate_degradation_by="clip_retrieval" for high-speed inference.
+```bash
+# Build environment
+docker build .
 
-Knowledge Base: Refer to AgenticIR/retrieval_database/CLIP4CIR/run_pipeline.sh to train the classifier and upsert restoration history into PostgreSQL.
+# Verify dependencies
+conda env list
 
-2. AgentApp (LangGraph & API)
-Graph Pipeline: Reproduces AgenticIR functionality within a DAG (Directed Acyclic Graph). Adding new restoration tools is as simple as defining a new node and linking it to the graph.
+# Generate synthetic datasets
+sh synthesize.sh
 
-Test via: sh run.sh
+# Run inference
+python -m pipeline.infer
 
-Service Layer: All models are wrapped in FastAPI wrappers.
+# Run AgentApp DAG pipeline
+sh run.sh
 
-Test via: sh test_api.sh
+# Test API
+sh test_api.sh
+```
 
-📝 Roadmap & To-dos
-[x] Service Manager: Automatic termination of idle/LRU services under high load.
+> Initial Phase: `evaluate_degradation_by="depictqa"` (zero-shot)
+> Knowledge Phase: `evaluate_degradation_by="clip_retrieval"` (high-speed with database)
 
-[ ] Adaptive Scheduling: Smart GPU rank selection when launching new model services to balance vRAM.
+---
 
-[ ] Cloud Native: Support for full Kubernetes (K8s) orchestration and Helm charts.
+## 🛠️ Modules Overview
 
-[ ] GPU Optimization: Integration of GPU Pooling (e.g., TensorFusion), NVIDIA MPS, or Time-Slicing to maximize multi-tenant throughput.
+<details>
+<summary>AgenticIR (Core Logic & Training)</summary>
 
-[ ] Model Acceleration: Kernel-level optimization (TensorRT/ONNX) for individual restoration backbones.
+* **Environment**: Build with Docker, verify with Conda.
+* **Data Synthesis**: `sh synthesize.sh`
+* **Inference**: `python -m pipeline.infer`
+* **Knowledge Base**: Train classifier and upsert history:
 
-[ ] MCP Implementation: Enable interoperability with other MCP-compatible clients (like Claude Desktop or IDEs) to trigger restoration workflows.
+```bash
+AgenticIR/retrieval_database/CLIP4CIR/run_pipeline.sh
+```
 
-[ ] RAG Implementation to enhance sequence planning capability.
+</details>
+
+<details>
+<summary>AgentApp (LangGraph & API)</summary>
+
+* **Graph Pipeline**: DAG-based restoration, easy to add new tools.
+* **Service Layer**: FastAPI wrappers for all models.
+
+```bash
+sh run.sh      # Run DAG
+sh test_api.sh # Test API
+```
+
+</details>
+
+---
+
+## 📝 Roadmap & To-dos
+
+| Feature                                              | Status     |
+| ---------------------------------------------------- | ---------- |
+| MCP & RAG Implementation (sequence planning)         | ⬜ Pending |
+| Service Manager & Adaptive Scheduling                | ⬜ Pending |
+| Cloud Native (K8s + Helm)                            | ⬜ Pending |
+| GPU Optimization & Model Acceleration                | ⬜ Pending |
+
+---
