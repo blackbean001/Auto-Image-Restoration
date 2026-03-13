@@ -9,6 +9,9 @@ Usage:
     python test_mcp_client.py                  # run all levels
 """
 
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
 import asyncio
 import argparse
 import json
@@ -36,16 +39,19 @@ def _out(subdir: str) -> str:
     return str(p)
 
 
-def _parse(result) -> dict | list | str:
-    # 临时调试：打印完整结构
-    
+def _parse(result) -> dict | list:
     for content in result.content:
         if content.type == "text":
             try:
-                return json.loads(content.text)
+                parsed = json.loads(content.text)
+                if isinstance(parsed, (dict, list)):
+                    return parsed
+                # Scalar JSON value — wrap it so callers can always use .get()
+                return {"value": parsed}
             except json.JSONDecodeError:
-                print(f"[debug] raw text: {content.text!r}")
-                return content.text
+                print(f"[debug] raw text (JSON parse failed): {content.text!r}", file=__import__('sys').stderr)
+                # Return empty dict so callers never get AttributeError on .get()
+                return {}
     return {}
 
 
@@ -357,3 +363,5 @@ if __name__ == "__main__":
         print("\nInterrupted by user (Ctrl+C)")
     except Exception as e:
         print(f"asyncio error: {e}")
+
+

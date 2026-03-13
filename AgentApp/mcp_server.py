@@ -25,11 +25,20 @@ Concurrency control (environment variables)
 """
 
 import os
+import sys
 import json
+
+# Propagate GPU selection to all child processes (conda run, subprocess, etc.)
+# Set before any CUDA-aware library is imported.
+if "CUDA_VISIBLE_DEVICES" not in os.environ:
+    os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # default; override via env var
 import shutil
 import logging
+import contextlib
+import io
 import asyncio
 import functools
+import select
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from copy import deepcopy as cpy
@@ -38,6 +47,89 @@ from typing import Optional, Callable, Any
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp import types
+
+logging.basicConfig(
+    level=logging.INFO,
+    stream=sys.stderr,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Suppress noisy third-party loggers (e.g. depictqa logging base64 image data)
+class _NoBase64Filter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        msg = record.getMessage()
+        return "data:image/" not in msg and "base64," not in msg
+
+_no_base64 = _NoBase64Filter()
+
+# Patch getLogger so the filter is applied to any logger created at any time
+_orig_get_logger = logging.getLogger
+def _patched_get_logger(name=None):
+    logger = _orig_get_logger(name)
+    if not any(isinstance(f, _NoBase64Filter) for f in logger.filters):
+        logger.addFilter(_no_base64)
+    return logger
+logging.getLogger = _patched_get_logger
+
+# Also silence the specific IRAgent QA logger at WARNING+
+logging.getLogger("IRAgent QA").setLevel(logging.WARNING)
+
+
+@contextlib.contextmanager
+def _silence_stdout():
+    """Redirect stdout → stderr at the OS file-descriptor level.
+
+    Works for:
+      - Python print() / sys.stdout.write()
+      - C extensions that write to fd=1 directly
+      - Child subprocesses that inherit fd=1
+
+    All captured output is forwarded to stderr so it still appears in logs.
+    """
+    stdout_fd = 1
+    sys.stdout.flush()
+
+    # Save a dup of the real stdout so we can restore later
+    saved_fd = os.dup(stdout_fd)
+    # Pipe to capture everything written to fd=1
+    pipe_r, pipe_w = os.pipe()
+    # Point fd=1 at the write end of our pipe
+    os.dup2(pipe_w, stdout_fd)
+    os.close(pipe_w)
+
+    # Also redirect Python sys.stdout object
+    old_stdout = sys.stdout
+    sys.stdout = open(os.devnull, "w")
+    try:
+        yield
+    finally:
+        # Flush and restore Python object
+        sys.stdout.flush()
+        sys.stdout.close()
+        sys.stdout = old_stdout
+
+        # Restore fd=1 to real stdout
+        os.dup2(saved_fd, stdout_fd)
+        os.close(saved_fd)
+
+        # Drain pipe and forward to stderr
+        captured_bytes = b""
+        while True:
+            ready, _, _ = select.select([pipe_r], [], [], 0)
+            if not ready:
+                break
+            chunk = os.read(pipe_r, 4096)
+            if not chunk:
+                break
+            captured_bytes += chunk
+        os.close(pipe_r)
+        if captured_bytes.strip():
+            import re as _re
+            clean = _re.sub(rb'\x1b\[[0-9;]*[A-Za-z]|\r', b'', captured_bytes)
+            if clean.strip():
+                sys.stderr.buffer.write(clean)
+                sys.stderr.flush()
+
 
 # ── Lazy imports ──────────────────────────────────────────────────────────────
 
@@ -112,6 +204,29 @@ DEFAULT_RETRIEVAL_ARGS = {
     "transform":      "targetpad",
     "target_ratio":   1.25,
 }
+
+
+
+# ── Safe JSON serialisation ───────────────────────────────────────────────────
+
+def _to_json(obj) -> str:
+    """Serialise obj to JSON, converting numpy/torch scalars and Path objects."""
+    def _default(o):
+        try:
+            import numpy as np
+            if isinstance(o, np.integer):  return int(o)
+            if isinstance(o, np.floating): return float(o)
+            if isinstance(o, np.ndarray):  return o.tolist()
+        except ImportError:
+            pass
+        try:
+            import torch
+            if isinstance(o, torch.Tensor): return o.tolist()
+        except ImportError:
+            pass
+        if isinstance(o, Path): return str(o)
+        return str(o)
+    return json.dumps(obj, default=_default, ensure_ascii=False)
 
 
 # ── MCP Server & Concurrency ──────────────────────────────────────────────────
@@ -251,16 +366,18 @@ def _get_knowledge_base() -> RestorationKnowledgeBase:
 def _do_evaluate_image(image_path: str, use_retrieval: bool) -> dict:
     from PIL import Image as PILImage
 
-    depictqa        = _get_depictqa()
-    depictqa_result = eval(depictqa(Path(image_path), task="eval_degradation"))
+    depictqa = _get_depictqa()
+    with _silence_stdout():
+        depictqa_result = eval(depictqa(Path(image_path), task="eval_degradation"))
 
     retrieval_result, similarity = None, None
     if use_retrieval:
         img        = PILImage.open(image_path)
         state_stub = {"image": img, "input_img_path": image_path,
                       "retrieval_args": DEFAULT_RETRIEVAL_ARGS}
-        embedding  = _generate_embedding(state_stub)
-        results    = _retrieve_from_db(embedding, 1)
+        with _silence_stdout():
+            embedding  = _generate_embedding(state_stub)
+            results    = _retrieve_from_db(embedding, 1)
 
         _id, _name, res_seq, sim = results[0]
         
@@ -314,17 +431,19 @@ def _do_plan_sequence(
         snippets    = [f"[{r['source']}] {r['content'][:300]}" for r in rag_context]
         rag_ctx_str = "\n".join(snippets)
 
-    gpt4       = _get_gpt4(str(GPT4_CONFIG))
+    with _silence_stdout():
+        gpt4       = _get_gpt4(str(GPT4_CONFIG))
     state_stub = {
         "schedule_experience_path": str(EXPERIENCE_PATH),
         "degra_subtask_dict":       DEGRA_SUBTASK,
         "subtask_degra_dict":       SUBTASK_DEGRA,
     }
-    plan = (
-        _schedule_w_exp(state_stub, gpt4, degradations, agenda, rag_ctx_str)
-        if with_experience else
-        _schedule_wo_exp(state_stub, gpt4, degradations, agenda, rag_ctx_str)
-    )
+    with _silence_stdout():
+        plan = (
+            _schedule_w_exp(state_stub, gpt4, degradations, agenda, rag_ctx_str)
+            if with_experience else
+            _schedule_wo_exp(state_stub, gpt4, degradations, agenda, rag_ctx_str)
+        )
     return {"plan": plan, "source": "depictqa+rag", "rag_used": bool(rag_context)}
 
 
@@ -345,10 +464,11 @@ def _run_restoration_subtask(
     # get_toolbox uses state["sim"] to decide toolbox routing:
     #   sim < 0.9  → shuffle all tools for this subtask
     #   sim >= 0.9 → use the specific retrieved tool directly
-    toolbox = get_toolbox({
-        "retrieval_args": DEFAULT_RETRIEVAL_ARGS,
-        "sim":            similarity,
-    }, subtask)
+    with _silence_stdout():
+        toolbox = get_toolbox({
+            "retrieval_args": DEFAULT_RETRIEVAL_ARGS,
+            "sim":            similarity,
+        }, subtask)
 
     if model:
         # Force a specific model; fall back to the full toolbox if not found
@@ -364,14 +484,32 @@ def _run_restoration_subtask(
 
         # Give each tool its own input directory and re-copy the source image
         # before every call — some tools move or clear their input directory.
-        tool_input = Path(output_dir) / f"_input_{tool.tool_name}"
-        tool_input.mkdir(parents=True, exist_ok=True)
-        shutil.copy(image_path, tool_input / "input.png")
+        from datetime import datetime
 
+        # ── Prepare input dir (must contain ONLY input.png) ──────────────────
+        tool_input = Path(output_dir) / f"_input_{tool.tool_name}"
+        if tool_input.exists():
+            shutil.rmtree(tool_input)
+        tool_input.mkdir(parents=True)
+
+        src = Path(image_path)
+        if not src.exists():
+            logging.error(f"Source image not found: {image_path}")
+            continue
+        shutil.copy(src, tool_input / "input.png")
+
+        # ── Prepare output dir (must be empty) ───────────────────────────────
         tool_out = Path(output_dir) / tool.tool_name
-        tool_out.mkdir(parents=True, exist_ok=True)
+        if tool_out.exists():
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+            backup_dir = Path(output_dir) / f"{tool.tool_name}_backup_{timestamp}"
+            shutil.copytree(tool_out, backup_dir)
+            logging.info(f"Backed up previous output to {backup_dir}")
+            shutil.rmtree(tool_out)
+        tool_out.mkdir(parents=True)
         try:
-            tool(input_dir=tool_input, output_dir=tool_out, silent=True)
+            with _silence_stdout():
+                tool(input_dir=tool_input, output_dir=tool_out, silent=True)
         except Exception as exc:
             logging.warning(f"Tool {tool.tool_name} failed: {exc}")
             continue
@@ -381,7 +519,8 @@ def _run_restoration_subtask(
             logging.warning(f"Tool {tool.tool_name} produced no output at {out_img}")
             continue
 
-        level = eval(depictqa(out_img, task="eval_degradation"))[0][1]
+        with _silence_stdout():
+            level = eval(depictqa(out_img, task="eval_degradation"))[0][1]
         res_level_dict.setdefault(level, []).append(out_img)
         logging.info(f"[subtask={subtask}] {tool.tool_name} → level={level}")
 
@@ -393,15 +532,29 @@ def _run_restoration_subtask(
         for lvl in LEVELS[1:]:
             if lvl in res_level_dict:
                 candidates = res_level_dict[lvl]
-                best_path  = candidates[0] if len(candidates) == 1 \
-                    else _search_best_by_comp(candidates, {"image": None})
-                success    = (lvl == "low")
+                if len(candidates) == 1:
+                    best_path = candidates[0]
+                else:
+                    with _silence_stdout():
+                        result = _search_best_by_comp(candidates, {"image": None})
+                    # _search_best_by_comp may return a Path or a string
+                    best_path = Path(result) if result else candidates[0]
+                success = (lvl == "low")
+                best_level = lvl
                 break
+        else:
+            best_level = "unknown"
+    
+    # best level actually achieved (most common level across all tools)
+    if res_level_dict:
+        achieved_level = min(res_level_dict.keys(), key=lambda l: LEVELS.index(l) if l in LEVELS else 99)
+    else:
+        achieved_level = "unknown"
 
     return {
         "output_path": str(best_path) if best_path else "",
         "success":     success,
-        "level":       next(iter(res_level_dict), "unknown"),
+        "level":       achieved_level,
     }
 
 
@@ -457,8 +610,8 @@ async def _impl_orchestrate_full_pipeline(arguments: dict) -> list[types.TextCon
         subtask_results[key] = result
 
         if result["output_path"]:
-            cur_path  = result["output_path"]
-            best_path = result["output_path"]
+            cur_path  = str(Path(result["output_path"]).resolve())
+            best_path = cur_path
 
         # Rollback: reinsert the failed subtask if this combination hasn't been tried yet
         if not result["success"] and with_rollback:
@@ -476,13 +629,24 @@ async def _impl_orchestrate_full_pipeline(arguments: dict) -> list[types.TextCon
 
 
 
-    return [types.TextContent(type="text", text=json.dumps({
-        "final_output":    str(final_out),
-        "plan_executed":   plan,
-        "subtask_results": subtask_results,
-        "report":          report,
-        "rag_context":     rag_context,
-    }, ensure_ascii=False))]
+    # Serialize each field independently so a failure in one field is isolated
+    payload: dict = {}
+    for _key, _val in [
+        ("final_output",    str(final_out)),
+        ("plan_executed",   plan),
+        ("subtask_results", subtask_results),
+        ("report",          report),
+        ("rag_context",     rag_context),
+    ]:
+        try:
+            # Validate it serialises cleanly
+            json.loads(_to_json(_val))
+            payload[_key] = _val
+        except Exception as _e:
+            logging.warning(f"[orchestrate] field '{_key}' failed to serialise: {_e} — value: {_val!r:.200}")
+            payload[_key] = str(_val)
+
+    return [types.TextContent(type="text", text=_to_json(payload))]
 
 
 async def _impl_evaluate_image(arguments: dict) -> list[types.TextContent]:
@@ -491,7 +655,22 @@ async def _impl_evaluate_image(arguments: dict) -> list[types.TextContent]:
         arguments["image_path"],
         arguments.get("use_retrieval", True),
     )
-    return [types.TextContent(type="text", text=json.dumps(report, ensure_ascii=False))]
+    # depictqa returns eval()'d Python objects which may contain numpy types —
+    # normalise every value to plain Python before serialising
+    def _normalise(obj):
+        if isinstance(obj, dict):
+            return {k: _normalise(v) for k, v in obj.items()}
+        if isinstance(obj, (list, tuple)):
+            return [_normalise(v) for v in obj]
+        try:
+            import numpy as np
+            if isinstance(obj, np.integer): return int(obj)
+            if isinstance(obj, np.floating): return float(obj)
+            if isinstance(obj, np.ndarray): return obj.tolist()
+        except ImportError:
+            pass
+        return obj
+    return [types.TextContent(type="text", text=_to_json(_normalise(report)))]
 
 
 async def _impl_query_restoration_knowledge(arguments: dict) -> list[types.TextContent]:
@@ -499,8 +678,8 @@ async def _impl_query_restoration_knowledge(arguments: dict) -> list[types.TextC
     top_k   = int(arguments.get("top_k", 3))
     kb      = await _call(_get_knowledge_base)
     results = await _call(kb.retrieve, query, top_k)
-    return [types.TextContent(type="text", text=json.dumps(
-        {"query": query, "results": results}, ensure_ascii=False))]
+    return [types.TextContent(type="text", text=_to_json(
+        {"query": query, "results": results}))]
 
 
 async def _impl_plan_sequence(arguments: dict) -> list[types.TextContent]:
@@ -512,7 +691,7 @@ async def _impl_plan_sequence(arguments: dict) -> list[types.TextContent]:
         arguments.get("with_experience", True),
         float(arguments.get("sim_threshold", 0.9)),
     )
-    return [types.TextContent(type="text", text=json.dumps(result, ensure_ascii=False))]
+    return [types.TextContent(type="text", text=_to_json(result))]
 
 
 async def _impl_run_restoration_agent(arguments: dict) -> list[types.TextContent]:
@@ -531,7 +710,7 @@ async def _impl_run_restoration_agent(arguments: dict) -> list[types.TextContent
         arguments.get("model"),
         float(arguments.get("similarity", 0.0)),
     )
-    return [types.TextContent(type="text", text=json.dumps(result))]
+    return [types.TextContent(type="text", text=_to_json(result))]
 
 
 async def _atomic(subtask: str, arguments: dict) -> list[types.TextContent]:
@@ -544,7 +723,7 @@ async def _atomic(subtask: str, arguments: dict) -> list[types.TextContent]:
         arguments.get("model"),
         float(arguments.get("similarity", 0.0)),
     )
-    return [types.TextContent(type="text", text=json.dumps(result))]
+    return [types.TextContent(type="text", text=_to_json(result))]
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -721,10 +900,6 @@ async def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     asyncio.run(main())
-
-
-
 
 
