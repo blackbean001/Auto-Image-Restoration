@@ -1,7 +1,7 @@
 # 🚀 Agentic Image Restoration System
 
-Made with ❤️ for production-ready image restoration, still a beta version. 
-Features available, still under active development.
+Made for production-ready image restoration. 
+Basic features available, still under active development.
 
 ![Status](https://img.shields.io/badge/status-beta-orange) ![Python](https://img.shields.io/badge/python-3.10-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
