@@ -85,5 +85,6 @@ sh test_api.sh # Test API
 | Service Manager & Adaptive Scheduling                | ⬜ Pending |
 | Cloud Native (K8s + Helm)                            | ⬜ Pending |
 | GPU Optimization & Model Acceleration                | ⬜ Pending |
+| Comprehensive evaluation                             | ⬜ Pending |
 
 ---
